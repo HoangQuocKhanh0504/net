@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quản lý tài khoản</title>
+<link rel="icon" href="GD.png" type="image/png">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: linear-gradient(135deg, #1f4068, #2980b9);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 40px 20px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 700px;
+        background: #fff;
+        border-radius: 20px;
+        padding: 30px 40px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    .logo {
+        width: 80px;
+        margin-bottom: 15px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    h2 {
+        text-align: center;
+        color: #1f4068;
+        font-size: 30px;
+        margin-bottom: 30px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    input[type="text"], input[type="number"] {
+        padding: 14px;
+        font-size: 16px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        transition: all 0.3s ease;
+    }
+    input:focus {
+        border-color: #2980b9;
+        box-shadow: 0 0 8px rgba(41,128,185,0.5);
+        outline: none;
+    }
+
+    button {
+        padding: 14px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #1f4068, #2980b9);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    button:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    hr {
+        border: none;
+        height: 1px;
+        background: #ccc;
+        margin: 30px 0;
+    }
+
+    ul { list-style: none; padding: 0; margin: 0; }
+    .user-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f7f7f7;
+        padding: 14px 18px;
+        border-radius: 15px;
+        margin-bottom: 12px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .user-card:hover {
+        background: #e0f0ff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .user-info {
+        font-weight: 500;
+        font-size: 16px;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <img src="GD.png" alt="Logo GD" class="logo">
+    <h2>Quản lý tài khoản</h2>
+
+    <form id="form">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="text" id="password" placeholder="Password" required>
+        <input type="number" id="minutes" placeholder="Thời gian (phút)" required>
+        <button type="submit">Tạo tài khoản</button>
+    </form>
+
+    <hr>
+
+    <h3>Danh sách User</h3>
+    <ul id="userList"></ul>
+</div>
+
+<script>
+const form = document.getElementById("form");
+
+// Hàm format thời gian
+function formatTime(seconds){
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    let str = "";
+    if(h > 0) str += `${h} giờ `;
+    if(m > 0) str += `${m} phút `;
+    str += `${s} giây`;
+    return str.trim();
+}
+
+// Submit form tạo user
+form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const minutes = document.getElementById("minutes").value;
+
+    const res = await fetch("/api/add_user", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({username, password, minutes})
+    });
+    const data = await res.json();
+    alert(data.success ? "Tạo thành công" : data.msg);
+    loadUsers();
+});
+
+// Load danh sách user, không chớp nháy
+async function loadUsers(){
+    const res = await fetch("/api/list_users");
+    const users = await res.json();
+    const list = document.getElementById("userList");
+
+    users.forEach(u => {
+        let li = document.getElementById(`user-${u.username}`);
+        if(!li){
+            li = document.createElement("li");
+            li.className = "user-card";
+            li.id = `user-${u.username}`;
+
+            const info = document.createElement("span");
+            info.className = "user-info";
+            li.appendChild(info);
+
+            const addBtn = document.createElement("button");
+            addBtn.innerText = "Nạp thêm";
+            addBtn.onclick = async () => {
+                const extra = prompt("Nhập số phút muốn nạp thêm:");
+                if(!extra) return;
+                const res2 = await fetch("/api/add_time", {
+                    method: "POST",
+                    headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify({username: u.username, minutes: parseFloat(extra)})
+                });
+                const data2 = await res2.json();
+                alert(data2.success ? "Nạp thêm thành công" : data2.msg);
+            };
+            li.appendChild(addBtn);
+            list.appendChild(li);
+        }
+        li.querySelector(".user-info").innerText = `${u.username} - ${formatTime(u.seconds)} - ${u.status}`;
+    });
+}
+
+// Refresh mỗi giây nhưng không reload toàn bộ DOM
+setInterval(loadUsers, 1000);
+loadUsers();
+</script>
+
+</body>
+</html>
