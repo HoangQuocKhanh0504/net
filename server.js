@@ -1,3 +1,4 @@
+// server.js
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -63,7 +64,8 @@ app.post("/api/add_user",(req,res)=>{
     if(!username||!password||!minutes) return res.json({ success:false, msg:"Thiếu dữ liệu" });
     let users = readUsers();
     if(users.find(u=>u.username===username)) return res.json({ success:false, msg:"User tồn tại" });
-    users.push({ username, password, seconds: parseInt(minutes)*60, status:"offline" });
+    const seconds = parseInt(minutes)*60;
+    users.push({ username, password, seconds, totalSeconds: seconds, status:"offline" });
     writeUsers(users);
     res.json({ success:true });
 });
@@ -75,7 +77,33 @@ app.post("/api/add_time",(req,res)=>{
     let users = readUsers();
     const user = users.find(u=>u.username===username);
     if(!user) return res.json({ success:false, msg:"User không tồn tại" });
-    user.seconds += parseInt(minutes)*60;
+    const addedSeconds = parseInt(minutes)*60;
+    user.seconds += addedSeconds;
+    user.totalSeconds += addedSeconds; // cập nhật tổng thời gian nạp
+    writeUsers(users);
+    res.json({ success:true });
+});
+
+// API: đặt lại mật khẩu
+app.post("/api/reset_password", (req,res)=>{
+    const { username, password } = req.body;
+    if(!username || !password) return res.json({ success:false, msg:"Thiếu dữ liệu" });
+    let users = readUsers();
+    const user = users.find(u=>u.username===username);
+    if(!user) return res.json({ success:false, msg:"User không tồn tại" });
+    user.password = password;
+    writeUsers(users);
+    res.json({ success:true });
+});
+
+// API: xóa user
+app.post("/api/delete_user", (req,res)=>{
+    const { username } = req.body;
+    if(!username) return res.json({ success:false, msg:"Thiếu dữ liệu" });
+    let users = readUsers();
+    const index = users.findIndex(u=>u.username===username);
+    if(index === -1) return res.json({ success:false, msg:"User không tồn tại" });
+    users.splice(index,1);
     writeUsers(users);
     res.json({ success:true });
 });
