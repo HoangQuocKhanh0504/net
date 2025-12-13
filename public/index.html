@@ -6,28 +6,34 @@
 <link rel="icon" href="GD.png" type="image/png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Roboto',sans-serif;background:linear-gradient(135deg,#1f4068,#2980b9);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
+body{font-family:'Roboto',sans-serif;background:linear-gradient(135deg,#1f4068,#2980b9);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;transition:background 0.3s,color 0.3s;}
+body.dark{background:#1a1a1a;color:#eee;}
 .hidden{display:none;}
-/* Password gate */
 #passGate{background:#fff;border-radius:20px;padding:40px;width:350px;text-align:center;box-shadow:0 15px 40px rgba(0,0,0,0.3);}
+body.dark #passGate{background:#333;color:#eee;box-shadow:0 15px 40px rgba(0,0,0,0.7);}
 #passGate h2{margin-bottom:25px;color:#1f4068;}
+body.dark #passGate h2{color:#eee;}
 #passGate input[type="password"]{width:100%;padding:12px;font-size:16px;border-radius:10px;border:1px solid #ccc;margin-bottom:20px;transition:all 0.3s ease;}
 #passGate input:focus{border-color:#2980b9;box-shadow:0 0 8px rgba(41,128,185,0.5);outline:none;}
 #passGate button{width:100%;padding:12px;font-size:16px;border:none;border-radius:10px;background:linear-gradient(90deg,#1f4068,#2980b9);color:white;cursor:pointer;transition:all 0.3s ease;}
 #passGate button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.3);}
-/* Container */
-.container{width:100%;max-width:700px;background:#fff;border-radius:20px;padding:30px 40px;box-shadow:0 15px 40px rgba(0,0,0,0.2);}
+.container{width:100%;max-width:700px;background:#fff;border-radius:20px;padding:30px 40px;box-shadow:0 15px 40px rgba(0,0,0,0.2);transition:background 0.3s,color 0.3s;}
+body.dark .container{background:#333;color:#eee;box-shadow:0 15px 40px rgba(0,0,0,0.7);}
 .logo{width:80px;margin:0 auto 15px;display:block;}
 h2{text-align:center;color:#1f4068;font-size:30px;margin-bottom:30px;}
+body.dark h2{color:#eee;}
 form{display:flex;flex-direction:column;gap:15px;margin-bottom:30px;}
-input[type="text"]{padding:14px;font-size:16px;border-radius:10px;border:1px solid #ccc;transition:all 0.3s ease;}
+input[type="text"], input[type="number"]{padding:14px;font-size:16px;border-radius:10px;border:1px solid #ccc;transition:all 0.3s ease;}
+body.dark input[type="text"], body.dark input[type="number"]{background:#555;color:#eee;border:1px solid #888;}
 input:focus{border-color:#2980b9;box-shadow:0 0 8px rgba(41,128,185,0.5);outline:none;}
 button{padding:10px 16px;font-size:14px;border:none;border-radius:10px;background:linear-gradient(90deg,#1f4068,#2980b9);color:white;cursor:pointer;transition:all 0.3s ease;box-shadow:0 5px 15px rgba(0,0,0,0.2);margin-left:5px;}
 button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.3);}
 hr{border:none;height:1px;background:#ccc;margin:30px 0;}
 ul{list-style:none;padding:0;margin:0;}
 .user-card{display:flex;justify-content:space-between;align-items:center;background:#f7f7f7;padding:14px 18px;border-radius:15px;margin-bottom:12px;box-shadow:0 6px 15px rgba(0,0,0,0.1);transition:all 0.3s ease;}
+body.dark .user-card{background:#444;color:#eee;box-shadow:0 6px 15px rgba(0,0,0,0.7);}
 .user-card:hover{background:#e0f0ff;transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.2);}
 .user-info{font-weight:500;font-size:16px;flex:1;}
 .status{font-weight:600;margin-left:10px;}
@@ -40,16 +46,27 @@ ul{list-style:none;padding:0;margin:0;}
 .package-buttons button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.3);}
 .package-buttons button.selected{background:linear-gradient(90deg,#f39c12,#e74c3c);}
 #customPrice{flex:1;padding:12px;border-radius:10px;border:1px solid #ccc;font-size:16px;}
+body.dark #customPrice{background:#555;color:#eee;border:1px solid #888;}
 #searchUser{width:100%;padding:12px;margin-bottom:15px;border-radius:10px;border:1px solid #ccc;font-size:16px;}
-/* Popup */
+body.dark #searchUser{background:#555;color:#eee;border:1px solid #888;}
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;z-index:999;}
 #popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:15px;padding:25px 30px;box-shadow:0 15px 40px rgba(0,0,0,0.3);min-width:300px;z-index:1000;display:none;flex-direction:column;align-items:center;}
-#popup p{margin-bottom:20px;font-size:16px;color:#333;text-align:center;}
-#popup button{padding:8px 14px;border:none;border-radius:10px;background:#1f4068;color:white;cursor:pointer;}
+body.dark #popup{background:#444;color:#eee;box-shadow:0 15px 40px rgba(0,0,0,0.7);}
+#popup p{margin-bottom:10px;font-size:16px;color:#333;text-align:center;}
+body.dark #popup p{color:#eee;}
+#popup input{padding:8px;width:80%;margin-top:10px;border-radius:8px;border:1px solid #ccc;}
+body.dark #popup input{background:#555;color:#eee;border:1px solid #888;}
+#popup button{padding:8px 14px;border:none;border-radius:10px;background:#1f4068;color:white;cursor:pointer;margin:5;}
 #popup button:hover{background:#2980b9;}
+#popup #popupNote{margin-top:8px;color:#555;font-size:14px;}
+body.dark #popup #popupNote{color:#ccc;}
+#toggleDark{position:fixed;top:10px;right:10px;padding:8px 14px;background:#1f4068;color:white;border:none;border-radius:8px;cursor:pointer;z-index:1001;}
+#toggleDark:hover{background:#2980b9;}
 </style>
 </head>
 <body>
+
+<button id="toggleDark">Toggle Dark Mode</button>
 
 <div id="passGate">
     <h2>Nhập mật khẩu</h2>
@@ -93,13 +110,22 @@ ul{list-style:none;padding:0;margin:0;}
 </div>
 
 <div id="overlay"></div>
-<div id="popup">
-    <p id="popupText"></p>
-    <button onclick="closePopup()">OK</button>
-</div>
+<div id="popup"></div>
 
 <script>
 const correctPass = "khanhpc5408";
+const popup = document.getElementById("popup");
+const overlay = document.getElementById("overlay");
+const toggleDarkBtn = document.getElementById("toggleDark");
+
+// Dark mode
+if(localStorage.getItem("darkMode") === "true") document.body.classList.add("dark");
+toggleDarkBtn.onclick = ()=>{
+    document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+}
+
+// LOGIN
 function checkPass(){
     const input = document.getElementById("passwordInput").value;
     const errorMsg = document.getElementById("errorMsg");
@@ -112,30 +138,18 @@ function checkPass(){
     }
 }
 
-const popup = document.getElementById("popup");
-const overlay = document.getElementById("overlay");
-function showPopup(msg){
-    document.getElementById("popupText").textContent = msg;
-    popup.style.display="flex";
-    overlay.style.display="block";
-}
-function closePopup(){
-    popup.style.display="none";
-    overlay.style.display="none";
+// ĐÓNG POPUP
+function closePopup(){ popup.style.display="none"; overlay.style.display="none"; }
+
+// CHUYỂN PHÚT SANG HH:MM:SS
+function formatTimeFromMinutes(mins){
+    const h = Math.floor(mins/60);
+    const m = mins % 60;
+    const s = 0;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
 
-const packageBtns = document.querySelectorAll(".package-buttons button");
-const customPrice = document.getElementById("customPrice");
-packageBtns.forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-        packageBtns.forEach(b=>b.classList.remove("selected"));
-        btn.classList.add("selected");
-        customPrice.value = btn.dataset.price;
-    });
-});
-customPrice.addEventListener("input", ()=>{ packageBtns.forEach(b=>b.classList.remove("selected")); });
-
-const form = document.getElementById("form");
+// FORMAT TIME TỪ GIÂY
 function formatTime(seconds){
     const h=Math.floor(seconds/3600);
     const m=Math.floor((seconds%3600)/60);
@@ -147,90 +161,205 @@ function formatTime(seconds){
     return str.trim();
 }
 
+// POPUP NẠP TIỀN
+function inputPopup(msg, callback){
+    popup.innerHTML = `
+        <p>${msg}</p>
+        <input type="number" id="popupInput" placeholder="Nhập số phút...">
+        <p id="popupNote">00:00:00 = 0₫</p>
+        <div style="margin-top:10px;">
+            <button id="okBtn">OK</button>
+            <button id="cancelBtn">Hủy</button>
+        </div>
+    `;
+    popup.style.display="flex";
+    overlay.style.display="block";
+
+    const input = document.getElementById("popupInput");
+    const note = document.getElementById("popupNote");
+
+    input.addEventListener("input", ()=>{
+        const minutes = parseInt(input.value);
+        if(isNaN(minutes) || minutes <= 0){
+            note.textContent = "00:00:00 = 0₫";
+        } else {
+            const price = Math.ceil(minutes / 60 * 5000);
+            note.textContent = `${formatTimeFromMinutes(minutes)} = ${price.toLocaleString()}₫`;
+        }
+    });
+
+    document.getElementById("okBtn").onclick = ()=>{
+        const val = parseInt(input.value);
+        closePopup();
+        callback(val);
+    };
+    document.getElementById("cancelBtn").onclick = closePopup;
+}
+
+// POPUP ĐẶT MẬT KHẨU
+function passwordPopup(msg, callback){
+    popup.innerHTML = `
+        <p>${msg}</p>
+        <input type="password" id="popupInput" placeholder="Nhập mật khẩu mới...">
+        <div style="margin-top:10px;">
+            <button id="okBtn">OK</button>
+            <button id="cancelBtn">Hủy</button>
+        </div>
+    `;
+    popup.style.display="flex";
+    overlay.style.display="block";
+
+    const input = document.getElementById("popupInput");
+    document.getElementById("okBtn").onclick = () => { closePopup(); callback(input.value); };
+    document.getElementById("cancelBtn").onclick = closePopup;
+}
+
+// POPUP XÁC NHẬN
+function confirmPopup(msg, callback){
+    popup.innerHTML = `
+        <p>${msg}</p>
+        <div style="margin-top:10px;">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">Hủy</button>
+        </div>
+    `;
+    popup.style.display="flex";
+    overlay.style.display="block";
+    document.getElementById("yesBtn").onclick = ()=>{ closePopup(); callback(true); };
+    document.getElementById("noBtn").onclick = ()=>{ closePopup(); callback(false); };
+}
+
+// POPUP ALERT
+function alertPopup(msg){
+    popup.innerHTML = `
+        <p>${msg}</p>
+        <div style="margin-top:10px;">
+            <button id="closeBtn">OK</button>
+        </div>
+    `;
+    popup.style.display="flex";
+    overlay.style.display="block";
+    document.getElementById("closeBtn").onclick = closePopup;
+}
+
+// PACKAGE BUTTONS
+const packageBtns = document.querySelectorAll(".package-buttons button");
+const customPrice = document.getElementById("customPrice");
+packageBtns.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+        packageBtns.forEach(b=>b.classList.remove("selected"));
+        btn.classList.add("selected");
+        customPrice.value = btn.dataset.price;
+    });
+});
+customPrice.addEventListener("input", ()=>{ packageBtns.forEach(b=>b.classList.remove("selected")); });
+
+// FORM TẠO USER
+const form = document.getElementById("form");
 form.addEventListener("submit", async e=>{
     e.preventDefault();
-    const username=document.getElementById("username").value;
-    const password=document.getElementById("password").value;
-    let money=parseInt(customPrice.value);
-    if(isNaN(money) || money<5000) money=5000;
-    const minutes=(money/5000)*60;
-    const res=await fetch("/api/add_user",{
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    let money = parseInt(customPrice.value);
+    if(isNaN(money) || money<5000) money = 5000;
+    const minutes = (money/5000)*60;
+    const res = await fetch("/api/add_user",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({username,password,minutes})
     });
-    const data=await res.json();
-    showPopup(data.success?"Tạo thành công":data.msg);
+    const data = await res.json();
+    alertPopup(data.success?"Tạo thành công":data.msg);
     loadUsers();
 });
 
+// LOAD USERS
 async function loadUsers(){
-    const res=await fetch("/api/list_users");
-    const users=await res.json();
-    const list=document.getElementById("userList");
-    list.innerHTML="";
+    const res = await fetch("/api/list_users");
+    const users = await res.json();
+    const list = document.getElementById("userList");
+    const existingIds = Array.from(list.children).map(li=>li.id);
+
     users.forEach(u=>{
-        const li=document.createElement("li");
-        li.className="user-card";
+        if(u.seconds <= 0) u.status = "offline";
 
-        const info=document.createElement("span");
-        info.className="user-info";
-        info.innerHTML=`${u.username} - ${formatTime(u.seconds)} <span class="status ${u.status}">${u.status}</span>`;
-        li.appendChild(info);
+        let li = document.getElementById(`user-${u.username}`);
+        if(!li){
+            li = document.createElement("li");
+            li.id = `user-${u.username}`;
+            li.className = "user-card";
 
-        const btnGroup=document.createElement("div");
-        btnGroup.className="btn-group";
+            const info = document.createElement("span");
+            info.className = "user-info";
+            info.innerHTML = `${u.username} - <span class="user-time">${formatTime(u.seconds)}</span> <span class="status ${u.status}">${u.status}</span>`;
+            li.appendChild(info);
 
-        const addBtn=document.createElement("button");
-        addBtn.innerText="Nạp thêm";
-        addBtn.onclick=async ()=>{
-            const extra=prompt("Nhập số phút muốn nạp thêm:");
-            if(!extra) return;
-            const res2=await fetch("/api/add_time",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username,minutes:parseFloat(extra)})});
-            const data2=await res2.json();
-            showPopup(data2.success?"Nạp thêm thành công":data2.msg);
-        };
-        btnGroup.appendChild(addBtn);
+            const btnGroup = document.createElement("div");
+            btnGroup.className = "btn-group";
 
-        const resetBtn=document.createElement("button");
-        resetBtn.innerText="Đặt lại pass";
-        resetBtn.onclick=async ()=>{
-            const newPass=prompt("Nhập mật khẩu mới:");
-            if(!newPass) return;
-            const res3=await fetch("/api/reset_password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username,password:newPass})});
-            const data3=await res3.json();
-            showPopup(data3.success?"Đặt lại thành công":data3.msg);
-        };
-        btnGroup.appendChild(resetBtn);
+            const addBtn = document.createElement("button");
+            addBtn.innerText="Nạp thêm";
+            addBtn.onclick=()=>inputPopup("Nhập số phút muốn nạp thêm:", async (minutes)=>{
+                if(!minutes) return;
+                const res2 = await fetch("/api/add_time",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username,minutes})});
+                const data2 = await res2.json();
+                alertPopup(data2.success?"Nạp thêm thành công":data2.msg);
+            });
+            btnGroup.appendChild(addBtn);
 
-        const delBtn=document.createElement("button");
-        delBtn.innerText="Xóa";
-        delBtn.onclick=async ()=>{
-            if(!confirm(`Xóa user ${u.username}?`)) return;
-            const res4=await fetch("/api/delete_user",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username})});
-            const data4=await res4.json();
-            showPopup(data4.success?"Xóa thành công":data4.msg);
-            loadUsers();
-        };
-        btnGroup.appendChild(delBtn);
+            const resetBtn = document.createElement("button");
+            resetBtn.innerText="Đặt lại pass";
+            resetBtn.onclick=()=>passwordPopup("Nhập mật khẩu mới:", async (newPass)=>{
+                if(!newPass) return;
+                const res3 = await fetch("/api/reset_password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username,password:newPass})});
+                const data3 = await res3.json();
+                alertPopup(data3.success?"Đặt lại thành công":data3.msg);
+            });
+            btnGroup.appendChild(resetBtn);
 
-        const payBtn=document.createElement("button");
-        payBtn.innerText="Tính tiền";
-        payBtn.onclick=()=>{
-            const totalSeconds=u.totalSeconds || u.seconds;
-            const usedSeconds=totalSeconds-u.seconds;
-            const pricePerSecond=5000/3600; // 5000đ / 3600s
-            let money=Math.round(usedSeconds*pricePerSecond);
-            showPopup(`User ${u.username} đã sử dụng: ${formatTime(usedSeconds)}\nTiền phải thu: ${money.toLocaleString()}₫`);
-        };
-        btnGroup.appendChild(payBtn);
+            const delBtn = document.createElement("button");
+            delBtn.innerText="Xóa";
+            delBtn.onclick=()=>confirmPopup(`Xóa user ${u.username}?`, async (ok)=>{
+                if(!ok) return;
+                const res4 = await fetch("/api/delete_user",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u.username})});
+                const data4 = await res4.json();
+                alertPopup(data4.success?"Xóa thành công":data4.msg);
+                li.remove();
+            });
+            btnGroup.appendChild(delBtn);
 
-        li.appendChild(btnGroup);
-        list.appendChild(li);
+            const payBtn = document.createElement("button");
+            payBtn.innerText="Tính tiền";
+            payBtn.onclick=()=>{
+                const totalSeconds = u.totalSeconds || u.seconds;
+                const usedSeconds = totalSeconds - u.seconds;
+                const pricePerSecond = 5000 / 3600;
+                let money = Math.round(usedSeconds * pricePerSecond);
+                alertPopup(`User ${u.username} đã sử dụng: ${formatTime(usedSeconds)}\nTiền phải thu: ${money.toLocaleString()}₫`);
+            };
+            btnGroup.appendChild(payBtn);
+
+            li.appendChild(btnGroup);
+            list.appendChild(li);
+        } else {
+            li.querySelector(".user-time").textContent = formatTime(u.seconds);
+            const statusSpan = li.querySelector(".status");
+            statusSpan.textContent = u.status;
+            statusSpan.className = `status ${u.status}`;
+        }
     });
+
+    existingIds.forEach(id=>{
+        if(!users.find(u=>`user-${u.username}`===id)){
+            const li = document.getElementById(id);
+            if(li) li.remove();
+        }
+    });
+
     filterUsers();
 }
 
+// TÌM KIẾM
 const searchInput=document.getElementById("searchUser");
 searchInput.addEventListener("input",filterUsers);
 function filterUsers(){
@@ -241,9 +370,10 @@ function filterUsers(){
     });
 }
 
-setInterval(()=>{
+// AUTO LOAD MỖI GIÂY
+setInterval(async ()=>{
     if(!document.getElementById("mainContent").classList.contains("hidden")){
-        loadUsers();
+        await loadUsers();
     }
 },1000);
 </script>
