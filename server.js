@@ -2,116 +2,188 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+
 const app = express();
+const PORT = 3000;
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static(path.join(__dirname, "public")));
 
+const USERS_FILE = "users.json";
+
+/* ================= UTIL ================= */
 function readUsers() {
-    if(!fs.existsSync("users.json")) fs.writeFileSync("users.json","[]");
-    return JSON.parse(fs.readFileSync("users.json"));
+    if (!fs.existsSync(USERS_FILE)) {
+        fs.writeFileSync(USERS_FILE, "[]");
+    }
+    return JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
 }
 
 function writeUsers(users) {
-    fs.writeFileSync("users.json", JSON.stringify(users,null,2));
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
-// API: kiểm tra user login
-app.post("/api/check_user", (req,res)=>{
+/* ================= API ================= */
+
+// LOGIN
+app.post("/api/check_user", (req, res) => {
     const { username, password } = req.body;
-    let users = readUsers();
-    const user = users.find(u=>u.username===username && u.password===password);
-    if(user && user.seconds > 0){
-        user.status = "online";
-        writeUsers(users);
-        res.json({ success:true, seconds: user.seconds });
-    } else {
-        res.json({ success:false, seconds:0 });
+    const users = readUsers();
+    const user = users.find(
+        u => u.username === username && u.password === password
+    );
+
+    if (!user || user.seconds <= 0) {
+        return res.json({ success: false, seconds: 0 });
     }
+
+    user.status = "online";
+    writeUsers(users);
+
+    res.json({
+        success: true,
+        seconds: user.seconds
+    });
 });
 
-// API: heartbeat để giữ trạng thái online
-app.post("/api/heartbeat", (req,res)=>{
+// HEARTBEAT – chỉ giữ ONLINE
+app.post("/api/heartbeat", (req, res) => {
     const { username } = req.body;
-    if(!username) return res.json({ success:false });
-    let users = readUsers();
-    const user = users.find(u=>u.username===username);
-    if(user){
+    if (!username) return res.json({ success: false });
+
+    const users = readUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) return res.json({ success: false });
+
+    if (user.seconds > 0) {
         user.status = "online";
         writeUsers(users);
-        res.json({ success:true });
-    } else res.json({ success:false });
+    }
+
+    res.json({ success: true });
 });
 
-// API: update thời gian mỗi giây
-app.post("/api/update_time",(req,res)=>{
+// ⏱️ UPDATE TIME – CHỈ TRỪ KHI PYTHON GỌI
+app.post("/api/update_time", (req, res) => {
     const { username } = req.body;
-    if(!username) return res.json({ success:false });
-    let users = readUsers();
-    const user = users.find(u=>u.username===username);
-    if(!user || user.seconds<=0) return res.json({ success:false });
-    user.seconds -= 1;
-    if(user.seconds<0) user.seconds=0;
-    if(user.seconds===0) user.status="offline";
+    if (!username) return res.json({ success: false });
+
+    const users = readUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) return res.json({ success: false });
+
+    if (user.seconds > 0) {
+        user.seconds -= 5; // ⬅️ PYTHON GỌI 5 GIÂY 1 LẦN
+        if (user.seconds < 0) user.seconds = 0;
+    }
+
+    if (user.seconds === 0) {
+        user.status = "offline";
+    }
+
     writeUsers(users);
-    res.json({ success:true, seconds:user.seconds });
+
+    res.json({
+        success: true,
+        seconds: user.seconds
+    });
 });
 
-// API: tạo user
-app.post("/api/add_user",(req,res)=>{
+// ADD USER
+app.post("/api/add_user", (req, res) => {
     const { username, password, minutes } = req.body;
-    if(!username||!password||!minutes) return res.json({ success:false, msg:"Thiếu dữ liệu" });
-    let users = readUsers();
-    if(users.find(u=>u.username===username)) return res.json({ success:false, msg:"User tồn tại" });
-    const seconds = parseInt(minutes)*60;
-    users.push({ username, password, seconds, totalSeconds: seconds, status:"offline" });
+    if (!username || !password || !minutes) {
+        return res.json({ success: false, msg: "Thiếu dữ liệu" });
+    }
+
+    const users = readUsers();
+    if (users.find(u => u.username === username)) {
+        return res.json({ success: false, msg: "User tồn tại" });
+    }
+
+    const seconds = parseInt(minutes) * 60;
+    users.push({
+        username,
+        password,
+        seconds,
+        totalSeconds: seconds,
+        status: "offline"
+    });
+
     writeUsers(users);
-    res.json({ success:true });
+    res.json({ success: true });
 });
 
-// API: nạp thêm thời gian
-app.post("/api/add_time",(req,res)=>{
+// ADD TIME
+app.post("/api/add_time", (req, res) => {
     const { username, minutes } = req.body;
-    if(!username||!minutes) return res.json({ success:false, msg:"Thiếu dữ liệu" });
-    let users = readUsers();
-    const user = users.find(u=>u.username===username);
-    if(!user) return res.json({ success:false, msg:"User không tồn tại" });
-    const addedSeconds = parseInt(minutes)*60;
-    user.seconds += addedSeconds;
-    user.totalSeconds += addedSeconds; // cập nhật tổng thời gian nạp
+    if (!username || !minutes) {
+        return res.json({ success: false, msg: "Thiếu dữ liệu" });
+    }
+
+    const users = readUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) {
+        return res.json({ success: false, msg: "User không tồn tại" });
+    }
+
+    const addSec = parseInt(minutes) * 60;
+    user.seconds += addSec;
+    user.totalSeconds += addSec;
+
     writeUsers(users);
-    res.json({ success:true });
+    res.json({ success: true });
 });
 
-// API: đặt lại mật khẩu
-app.post("/api/reset_password", (req,res)=>{
+// RESET PASSWORD
+app.post("/api/reset_password", (req, res) => {
     const { username, password } = req.body;
-    if(!username || !password) return res.json({ success:false, msg:"Thiếu dữ liệu" });
-    let users = readUsers();
-    const user = users.find(u=>u.username===username);
-    if(!user) return res.json({ success:false, msg:"User không tồn tại" });
+    if (!username || !password) {
+        return res.json({ success: false, msg: "Thiếu dữ liệu" });
+    }
+
+    const users = readUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) {
+        return res.json({ success: false, msg: "User không tồn tại" });
+    }
+
     user.password = password;
     writeUsers(users);
-    res.json({ success:true });
+
+    res.json({ success: true });
 });
 
-// API: xóa user
-app.post("/api/delete_user", (req,res)=>{
+// DELETE USER
+app.post("/api/delete_user", (req, res) => {
     const { username } = req.body;
-    if(!username) return res.json({ success:false, msg:"Thiếu dữ liệu" });
-    let users = readUsers();
-    const index = users.findIndex(u=>u.username===username);
-    if(index === -1) return res.json({ success:false, msg:"User không tồn tại" });
-    users.splice(index,1);
+    if (!username) {
+        return res.json({ success: false, msg: "Thiếu dữ liệu" });
+    }
+
+    const users = readUsers();
+    const idx = users.findIndex(u => u.username === username);
+    if (idx === -1) {
+        return res.json({ success: false, msg: "User không tồn tại" });
+    }
+
+    users.splice(idx, 1);
     writeUsers(users);
-    res.json({ success:true });
+
+    res.json({ success: true });
 });
 
-// API: danh sách user
-app.get("/api/list_users",(req,res)=>{
+// LIST USERS – WEB CHỈ ĐỌC
+app.get("/api/list_users", (req, res) => {
     const users = readUsers();
+    users.forEach(u => {
+        if (u.seconds <= 0) u.status = "offline";
+    });
     res.json(users);
 });
 
-app.listen(3000,()=>console.log("Server running on port 3000"));
+/* ================= START ================= */
+app.listen(PORT, () => {
+    console.log(`🔥 Server running at http://localhost:${PORT}`);
+});
